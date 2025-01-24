@@ -5,28 +5,22 @@ module Deriv where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Nat hiding (_^_)
 
+-- This file type-checks with either the computing or the free implementation of the axioms included
+-- (when using Free, we need to remove the --safe flag from this file since the free model requires postulates)
 open import Computing
-
-
-
-dsply : (ℓ : Level) → Type (ℓ-suc ℓ)
-dsply ℓ = Σ[ A ∈ Type ℓ ] (A → sply ℓ)
+-- open import Free
 
 private
   variable
     ℓ : Level
-
-unitr⊸ : ∀ {ℓ} → (Δ : sply ℓ) → (Δ ⊗ ◇) ⊸ Δ
-unitr⊸ Δ = unitl⊸ Δ ⊸∘ swap Δ ◇
-unitr⊸' : ∀ {ℓ} → (Δ : sply ℓ) → Δ ⊸ Δ ⊗ ◇
-unitr⊸' Δ = swap ◇ Δ ⊸∘ unitl⊸' Δ
 
 Λₒ-syntax : (A : Type ℓ) → (A → sply ℓ) → sply (ℓ)
 Λₒ-syntax = Λₒ
 
 syntax Λₒ-syntax A (λ x → Δ) = Λₒ[ x ∈ A ] Δ
 
-
+dsply : (ℓ : Level) → Type (ℓ-suc ℓ)
+dsply ℓ = Σ[ A ∈ Type ℓ ] (A → sply ℓ)
 
 
 _^_ : sply ℓ → ℕ → sply ℓ
@@ -38,16 +32,6 @@ infixl 50 _^_
 ⊸^ : ∀{ℓ}{Δ₀ Δ₁ : sply ℓ} → (m : ℕ) → Δ₀ ⊸ Δ₁ → (Δ₀ ^ m) ⊸ (Δ₁ ^ m)
 ⊸^ zero δ = id (◇)
 ⊸^ (suc m) δ = δ ⊸⊗ (⊸^ m δ)
-
-◇^ : ∀{ℓ} → (m : ℕ) → _⊸_ {ℓ} (◇ ^ m) ◇
-◇^ zero = id _
-◇^ (suc m) =  unitl⊸ ◇ ⊸∘ (id ◇) ⊸⊗ (◇^ m)
-
-◇^' : ∀{ℓ} → (m : ℕ) → _⊸_ {ℓ} ◇ (◇ ^ m)
-◇^' zero = id ◇
-◇^' (suc m) = ◇^' m
-
-
 
 
 _⊩_ : sply ℓ → dsply ℓ → Type (ℓ-suc ℓ)
@@ -69,9 +53,6 @@ ap : {Δ₀ Δ₁ : sply ℓ} {A : dsply ℓ}
 ap δ₁ (a , δ₂) = a , δ₂ ⊸∘ δ₁
 
 
-lf : {A : Type ℓ} {B : A → Type ℓ} → (m : ℕ) → (Δ₁ : {x : A} → B x → sply ℓ) → ((x : A) → B x) → sply ℓ
-lf {_}  {A} m Δ₁ f =  Λₒ[ x ∈ A ] [ (η x) ^ m , Δ₁ (f x) ]
-
 
 Π : (m : ℕ) → (A : Type ℓ) (B : (x : A) → dsply ℓ) → dsply ℓ
 Π m A BΔ = ((x : A) → fst (BΔ x)) , λ f → Λₒ[ x ∈ A ] [ (η x) ^ m , snd (BΔ x) (f x) ]
@@ -82,17 +63,20 @@ lf {_}  {A} m Δ₁ f =  Λₒ[ x ∈ A ] [ (η x) ^ m , Δ₁ (f x) ]
   → Δ₀ ⊩ Π m A (λ x → (B x) , Δ)
 ΠI {_} {A} m J = (λ x → fst (J x)) , λₒ (λ x → cur (snd (J x)))
 
-ΠE' : {A : Type ℓ} {B : A → Type ℓ} {Δ : sply ℓ} {Δ₁ : {x : A} → B x → sply ℓ} (m : ℕ)
+ΠE : {A : Type ℓ} {B : A → Type ℓ} {Δ : sply ℓ} {Δ₁ : {x : A} → B x → sply ℓ} (m : ℕ)
   → Δ ⊩ Π m A (λ x → (B x) , Δ₁)
   → ((x : A) → Δ ⊗ (η x) ^ m ⊩ (B x) , Δ₁)
-ΠE' {_} {A} m (b , f) x = (b x) , (unc (λₒ⁻¹ f x))
+ΠE {_} {A} m (b , f) x = (b x) , (unc (λₒ⁻¹ f x))
 
 
 ΠApp : {A : Type ℓ} {B : A → Type ℓ} {Δ₀ Δ₁ : sply ℓ} {Δ : {x : A} → B x → sply ℓ} (m : ℕ)
   → Δ₀ ⊩ Π m A (λ x → (B x) , Δ)
   → ((a , _) : Δ₁ ⊩₁ A)
   → (Δ₀ ⊗ Δ₁ ^ m ⊩ (B a) , Δ)
-ΠApp {_} {A} {B} {Δ₀} m J (a , p) = ap (id Δ₀ ⊸⊗ ⊸^ m p) (ΠE' m J a)
+ΠApp {_} {A} {B} {Δ₀} m J (a , p) = ap (id Δ₀ ⊸⊗ ⊸^ m p) (ΠE m J a)
+
+
+
 
 
 
@@ -111,3 +95,7 @@ s _ = _
 Π' : (m : ℕ) → (A : Type ℓ) (B : (x : A) → dsply ℓ) → Type ℓ
 Π' m A BΔ = Σ[ f ∈ ((x : A) → fst (BΔ x)) ] ⟨ Λₒ[ x ∈ A ] [ (η x) ^ m , snd (BΔ x) (f x) ] ⟩
 
+
+-- sometimes we need to guide the type-checker a bit, use the below shortcut
+lf : {A : Type ℓ} {B : A → Type ℓ} → (m : ℕ) → (Δ₁ : {x : A} → B x → sply ℓ) → ((x : A) → B x) → sply ℓ
+lf {_}  {A} m Δ₁ f =  Λₒ[ x ∈ A ] [ (η x) ^ m , Δ₁ (f x) ]

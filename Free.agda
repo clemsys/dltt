@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical #-}
 
-module Model where
+module Free where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -10,11 +10,11 @@ open import Cubical.Data.List
 open import Cubical.Data.Unit
 
 
-infixl 30 _⊗_
-infixl 0 _⊸_
+infixr 30 _⊗_
+infixr 0 _⊸_
 infixl 10 [_,_]
-infixl 11 _⊸⊗_
-infixl 10 _⊸∘_
+infixr 11 _⊸⊗_
+infixr 10 _⊸∘_
 
 
 data sply (ℓ : Level) : Type (ℓ-suc ℓ) where
@@ -31,7 +31,6 @@ data _⊸_ {ℓ : Level} : sply ℓ → sply ℓ → Type (ℓ-suc ℓ) where
   unitl⊸' : ∀ Δ → Δ ⊸ ◇ ⊗ Δ
   swap : ∀ x y → x ⊗ y ⊸ y ⊗ x
   assoc : ∀ x y z → x ⊗ (y ⊗ z) ⊸ (x ⊗ y) ⊗ z
-  assoc' :  ∀ Δ₀ Δ₁ Δ₂ → Δ₀ ⊗ Δ₁ ⊗ Δ₂ ⊸ (Δ₀ ⊗ Δ₁) ⊗ Δ₂
 
 
   _⊸∘_ : ∀ {Δ₀ Δ₁ Δ₂}

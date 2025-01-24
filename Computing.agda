@@ -100,8 +100,6 @@ swap x y =  subst (_⊸ y ⊗ x) (sym (comm-++ x y)) (id (y ⊗ x))
 assoc : ∀{ℓ} (Δ₀ Δ₁ Δ₂ : sply ℓ) → (Δ₀ ⊗ Δ₁) ⊗ Δ₂ ⊸ Δ₀ ⊗ Δ₁ ⊗ Δ₂
 assoc x y z = subst ((x ⊗ y) ⊗ z ⊸_) (sym (assoc-++ x y z)) (id _)
 
-assoc' : ∀{ℓ} (Δ₀ Δ₁ Δ₂ : sply ℓ) → Δ₀ ⊗ Δ₁ ⊗ Δ₂ ⊸ (Δ₀ ⊗ Δ₁) ⊗ Δ₂
-assoc' x y z = subst (x ⊗ y ⊗ z ⊸_) ((assoc-++ x y z)) (id _)
 
 unitl⊸ : ∀ {ℓ} → (Δ : sply ℓ) → (◇ ⊗ Δ) ⊸ Δ
 unitl⊸ _ = id _
