@@ -1,53 +1,148 @@
 {-# OPTIONS --cubical --safe #-}
-
 module Functions where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
-open import Computing
-open import Deriv
-open import TensorLemmas
+
+
+open import Core
+open LinearTypes
+
 
 private
   variable
     ℓ : Level
 
-copy : {A : Type} → ◇ ⊩ Π 2 A  (λ _ → A × A , η)
-copy = ΠI {Δ = η} 2 λ x → ap ω, (ax (x , x))
-
-module _ {ℓ} {A : Type ℓ} {B : A → Type ℓ} {C : {x : A} → B x → Type ℓ} where
-  compose : {Δ₀ Δ₁ : sply ℓ} ( m n : ℕ ) →
-    ({x : A} → Δ₁ ⊩ Π n (B x) (λ y → C y , η))
-    → ((f , _) : Δ₀ ⊩ Π m A (λ x → B x , η))
-    → Δ₁ ⊗ Δ₀ ^ n ⊩ Π (m · n) A (λ x → C (f x) , η)
-  compose {Δ₀} {Δ₁} m n J J' = ΠI (m · n) (λ x → ap (prod₁ x) $ ΠApp {Δ = η} n J (ΠApp {Δ = η} m J' (ax x)))
-    where
-    prod₁ : (x : A) → (Δ₁ ⊗ Δ₀ ^ n) ⊗ η x ^ (m · n) ⊸ Δ₁ ⊗ (Δ₀ ⊗ η x ^ m) ^ n
-    prod₁ x = id Δ₁ ⊸⊗ (exp Δ₀ (η x ^ m) n ⊸∘ id (Δ₀ ^ n) ⊸⊗ explaw (η x) m n) ⊸∘ assoc Δ₁ (Δ₀ ^ n) (η x ^ (m · n))
-
-copytwice : {A : Type} → ◇ ⊩ Π 4 A  (λ _ → (A × A) × (A × A) , η)
-copytwice {A} = ap (unitr⊸ ◇) $ compose 2 2 (copy {A = A × A}) copy
 
 
-module _ {ℓ} {A : Type ℓ} {B : A → Type ℓ} {C : {x : A} → B x → Type ℓ} {Δ : sply ℓ} where
-  curryD :
-    Δ ⊩ Π 1 (Σ A B) (λ (x , y) → C y , η)
-    →  Δ ⊩ Π 1 A (λ x → Π 1 (B x) λ y → (C y) , η)
-  curryD J = ΠI 1 (λ x → ΠI 1 (λ y → ap (id Δ ⊸⊗ ω, ⊸∘ assoc Δ _ _) $ ΠApp {Δ = η} 1 J (ax (x , y))))
-
-  uncurryD :
-    Δ ⊩ Π 1 A (λ x → Π 1 (B x) λ y → (C y) , η)
-   → Δ ⊩ Π 1 (Σ A B) (λ (x , y) → C y , η)
-  uncurryD J = ΠI 1 (λ (x , y) → ap (assoc' Δ _ _ ⊸∘ id Δ ⊸⊗ ι,) (ΠApp {Δ = η} 1 (ΠApp 1 J (ax x)) (ax y)))
+module _ {A : Type ℓ} {B : Type ℓ} where
+  switch : (z : A × B) → η z ⊩ B × A
+  switch (x , y) = ． (y , x) by prod where prod : η (x , y) ⧟ η (y , x)
+                                           prod = wk, ∘ swap (η x) (η y) ∘ cn,
 
 
-lid : ∀{ℓ}{A : Type ℓ} → ◇ ⊩ Π 1 A λ _ → A , η
-lid = ΠI {Δ = η} 1 (λ x → ax x)
 
-basic : {A : Type} → (x : A) → Σ[ b ∈ A × A ] (η x ⊗ η x ⊸ η b)
-basic x = (x , x) , ω, ⊸∘ id (η x ⊗ η x)
+_⊸_ : Type ℓ → Type ℓ → Type (ℓ-suc ℓ)
+A ⊸ B = (x : A) → η x ⊩ B
 
-dupl : {A : Type} → (x : A) → η x ⊗ η x ⊩₁ A × A
-dupl x = ap ω, (ax (x , x))
+
+
+_-⟨_⟩⊸_ : Type ℓ → ℕ → Type ℓ → Type (ℓ-suc ℓ)
+A -⟨ m ⟩⊸ B = (x : A) → η x ^ m ⊩ B
+
+
+
+_⊸﹠_⊸_ :  Type ℓ → Type ℓ → Type ℓ → Type (ℓ-suc ℓ)
+A ⊸﹠ B ⊸ C = (x : A) → (y : B) → η y ⊗ η x ⊩ C
+
+-- _⊸_⊸﹠_ :  Type ℓ → Type ℓ →  Type ℓ → Type (ℓ-suc (ℓ-suc ℓ))
+-- A ⊸ B ⊸﹠ C = Lift A ⊸ B ⊸ C
+
+
+_⊸D_ : (A : Type ℓ) (B : A → Type ℓ) → Type (ℓ-suc ℓ)
+A ⊸D B = (x : A) → η x ⊩ B x
+
+infixr 0 _-⟨_⟩⊸_
+infixr 0 _⊸_
+infixr 0 _⊸﹠_⊸_
+-- infixr 0 _⊸_⊸﹠_
+
+
+module Ingore {A : Type ℓ} {B : Type ℓ} where
+  _,○_ : A ⊸﹠ B ⊸ A × B
+  x ,○ y = ． (x , y) by wk, ∘ swap (η y) (η x)
+
+
+module _ {A : Type ℓ} {B : A → Type ℓ} where
+-- _,○_ : (x : A) (y : B x) → η y ⊗ η x ⊩ Σ A B
+  _,○_ : (x : A) → (y : B x) → η y ⊗ η x ⊩ Σ A B
+  x ,○ y = ． (x , y) by wk, ∘ swap (η y) (η x)
+
+
+
+
+module Ignore2 {A : Type ℓ} {B : A → Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+  _＠_ : ((x : A) → η x ⊗ Δ₀ ⊩ B x) → ((a , _) : Δ₁ ⊩ A) → Δ₀ ⊗ Δ₁ ⊩ B a
+  f ＠ (a , δ) = f a by swap Δ₀ (η a) ∘ id Δ₀ ⊗ᶠ δ
+
+
+-- this version does not work for foldr₁
+-- module _ {A B : Type ℓ} {Δ : Supply ℓ} where
+-- _＠_ : (A ⊸ B) → Δ ⊩ A → Δ ⊩ B
+-- f ＠ (a , δ) = f a by δ
+
+module _ {A B : Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+  _＠_ : ((x : A) → η x ⊗ Δ₀ ⊩ B) → Δ₁ ⊩ A → Δ₀ ⊗ Δ₁ ⊩ B
+  f ＠ (a , δ) = f a by swap Δ₀ (η a) ∘ id Δ₀ ⊗ᶠ δ
+
+  infixl -100 _＠_
+
+module _ {A B : Type ℓ} {Δ : Supply ℓ} (m : ℕ) where
+  app : A -⟨ m ⟩⊸ B → Δ ⊩ A → Δ ^ m ⊩ B
+  app f (a , δ) = f a by ⧟^ m δ
+
+
+-- module _ {A B : Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+--   app : (m : ℕ) → ((x : A) → η x ^ m ⊗ Δ₀ ⊩ B) → ((a , _) : Δ₁ ⊩ A) → Δ₀ ⊗ Δ₁ ^ m ⊩ B
+--   app m f (a , δ) = f a by swap Δ₀ (η a ^ m) ∘ id Δ₀ ⊗ᶠ ⧟^ m δ
+
+
+  syntax app m f x = f ＠⟨ m ⟩ x
+
+
+-- module _ {A B : Type ℓ} where
+--   _,○_ : A ⊸﹠ B ⊸ A × B
+--   x ,○ y = ． (x , y) by wk, ∘ swap (η y) (η x)
+
+module _ {A B C : Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+  ○→◎ : A ⊸﹠ B ⊸ C → Δ₀ ⊩ A → Δ₁ ⊩ B → Δ₀ ⊗ Δ₁ ⊩ C
+  ○→◎ f (a , δ) b = f a ＠ b by δ ⊗ᶠ id Δ₁
+
+
+
+
+module _ {A B : Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+  _,◎_ : Δ₀ ⊩ A → Δ₁ ⊩ B → Δ₀ ⊗ Δ₁ ⊩ A × B
+  _,◎_ = ○→◎ _,○_
+
+
+
+-- module _ {A : Type ℓ} {B : A → Type ℓ} {Δ₀ Δ₁ : Supply ℓ} where
+-- _,◎_ : ((x , _) : Δ₀ ⊩ A) → (Δ₁ ⊩ B x) → Δ₀ ⊗ Δ₁ ⊩ Σ A B
+  -- (x , δ₀) ,◎ (y , δ₁) = {!x ,○ y by ?!}
+  -- ． (x , y) by wk, ∘ δ₀ ⊗ᶠ δ₁
+
+
+
+
+module _ {A : Type ℓ} {B : Type ℓ} where
+  switch' : A × B ⊸ B × A
+  switch' (x , y) = (． y ,◎ ． x) by swap (η x) (η y) ∘ cn,
+
+
+
+
+module _ {A : Type ℓ} where
+  copy : A -⟨ 2 ⟩⊸ A × A
+  copy x = ． (x , x) by wk,
+
+
+module _ {A B C : Type ℓ} (n m : ℕ) where
+  compose : A -⟨ n ⟩⊸ B → B -⟨ m ⟩⊸ C → A -⟨ n · m ⟩⊸ C
+  compose f g x = g ＠⟨ m ⟩ (f ＠⟨ n ⟩ ． x) by explaw (η x) n m
+
+-- compose f g x = let (y , δ) = f x in g y by ⧟^ m δ ∘ explaw (η x) n m
+
+  -- compose : {Δ₀ Δ₁ : Supply ℓ} (m n : ℕ ) →
+  --     ((x : A) → η x ^ n ⊗ Δ₀ ⊩ B)
+  --   → ((y : B) → η y ^ m ⊗ Δ₁ ⊩ C)
+  --   → (x : A) → η x ^ (m · n) ⊗ Δ₁ ⊗ Δ₀ ^ n ⊩ C
+  -- compose m n f g x = applin m g (applin n f (． x) by {!!}) by {!!}
+
+module _ {A : Type ℓ} where
+  copytwice : A -⟨ 4 ⟩⊸ (A × A) × (A × A)
+  copytwice = compose 2 2 copy copy
+
+
+
