@@ -1,22 +1,18 @@
-{-# OPTIONS --cubical #-}
-
+{-# OPTIONS #-}
 module Everything where
 
+open import Prelude
 open import Base
-open import Linear
-open import LinearHO
-open import Core
-open import Functions
-open import FunctionsHO
+open import Lemmas
+open import Poly
+open import ProductionSolver
+open import NatMul
+open import LinFunctions
+open import NatFunctions
+open import BangFunctions
 
-
-open import Examples.Maybe
-open import Examples.List
-open import Examples.ListPartial
-open import Examples.ISort
-open import Examples.SSort
-open import Examples.Vector
-
-open import ExamplesHO.List
-
+open import Examples.Basic
+open import Examples.LinFunctions
+open import Examples.NatFunctions
+open import Examples.Bang
 
