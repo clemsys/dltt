@@ -1,3 +1,4 @@
+\begin{code}[hide]
 {-# OPTIONS --safe #-}
 
 module Examples.NatFunctions where
@@ -33,8 +34,13 @@ module _ {A : Type ℓ} where
 
 
 module _ {A : Type ℓ} where
+\end{code}
+\newcommand{\agdaDLTTcopy}{%
+\begin{code}
   copy : ◇ ⊩ ⟨ A ． ⟩^ 2 ⊸ A × A ．
   copy = 𝛌 x ↦ (x , x) ⁱ
+\end{code}}
+\begin{code}[hide]
     by lax, ∘ id (ι x) ⊗ᶠ id (ι x) ∘ id (ι x) ⊗ᶠ unitr (ι x) ∘
         (id (ι x) ⊗ᶠ id (ι x) ⊗ᶠ id ◇ ∘ unitl (ι x ⊗ ι x ⊗ ◇))
 
@@ -170,7 +176,12 @@ module _ {A : Type ℓ} {B : A → Type ℓ} {C : (x : A) → B x → Type ℓ} 
 
 
 module _ {A : Type ℓ} where
+\end{code}
+\newcommand{\agdaDLTTifthenelse}{%
+\begin{code}
   ifthenelse : ◇ ⊩ ⟨ b ∶ Bool ． ⟩^ 0 ⊸ ⟨ A ． ⟩^ ∣ b ∣  ⊸ ⟨ A ． ⟩^ ∣ ¬ b ∣ ⊸ A ．
+\end{code}}
+\begin{code}[hide]
   ifthenelse = 𝛌 b ．↦ case b of
     (λ b → ◇ ⊗ ◇ ⊩ ⟨ A ． ⟩^ ∣ b ∣  ⊸ ⟨ A ． ⟩^ ∣ ¬ b ∣ ⊸ A ．) type λ where
       true → 𝛌 x ．↦ 𝛌 _ ．↦ x ⁱ
@@ -320,4 +331,4 @@ module _ {A B : Type ℓ} where
              ∘ ((id ◇ ⊗ᶠ (opltt ∘ oplinr) ⊗ᶠ id ◇) ⊗ᶠ id ◇) ⊗ᶠ id (ι n) ⊗ᶠ id ◇)
 
 
-
+\end{code}

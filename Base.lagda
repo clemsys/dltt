@@ -1,3 +1,4 @@
+\begin{code}[hide]
 {-# OPTIONS --safe #-}
 module Base where
 
@@ -76,7 +77,12 @@ private
 infixl 25 Λ
 syntax Λ A (λ x → Δ) = Λ[ x ∶ A ] Δ
 
+\end{code}
+\newcommand{\agdaLinJudgment}{%
+\begin{code}
 _⊩_ : Supply ℓ → LType ℓ → Type (ℓ-suc ℓ)
+\end{code}}
+\begin{code}[hide]
 Δ ⊩ (A , Θ) = Σ[ a ∈ A ] (Δ ▷ Θ a)
 
 infixl -100 _⊩_
@@ -126,4 +132,4 @@ module _ {Δ₀ Δ₁ : Supply ℓ} {A : LType ℓ} where
   (a , δ₀) by  δ₁ = a , δ₀ ∘ δ₁
   infixl 0 _by_
 
-
+\end{code}

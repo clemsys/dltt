@@ -1,3 +1,4 @@
+\begin{code}[hide]
 {-# OPTIONS --safe #-}
 
 module Examples.LinFunctions where
@@ -22,8 +23,13 @@ module _ {A : Type ℓ} {B : A → Type ℓ} where
 
 
 module _ {A B : Type ℓ} where
+\end{code}
+\newcommand{\agdaDLTTswitch}{%
+\begin{code}
   switch : ◇ ⊩ ⟨ A × B ． ⟩ ⊸ B × A ．
   switch = 𝛌 (x , y) ↦ pair ﹫ y ⁱ ﹫． x ⁱ
+\end{code}}
+\begin{code}[hide]
       by assoc _ _ _ ∘ id ◇ ⊗ᶠ swap (ι x) (ι y) ∘ id ◇ ⊗ᶠ opl,
 
 
@@ -133,10 +139,4 @@ module _ {A : Type ℓ} {B : A → Type ℓ} {C : (x : A) → B x → Type ℓ} 
                      [ ι x₁ , Λ (B x₁) (λ x₂ → [ ι x₂ , ι (f .term x₁ x₂) ]) ])))
                 ⊗ᶠ (id (ι x) ⊗ᶠ id (ι y) ∘ opl,))
 
-
-
-
-
-
-
-
+\end{code}
